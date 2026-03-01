@@ -14,6 +14,8 @@ public class Order
     return lineItems.size();
   }
 
+  public ArrayList<LineItem> getLineItems(){return lineItems;}
+
   public void add(LineItem item)
   {
     lineItems.add(item);

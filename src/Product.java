@@ -1,14 +1,12 @@
-public class Product
+abstract class Product
 {
   private int code;
   private int price;
-  private String description;
 
-  public Product(int code, String description, int price)
+  public Product(int code, int price)
   {
     this.code = code;
     this.price = price;
-    this.description = description;
   }
 
   public int getPrice()
@@ -16,10 +14,7 @@ public class Product
     return price;
   }
 
-  public String getDescription()
-  {
-    return description;
-  }
+  abstract String getDescription();
 
   public int getCode()
   {

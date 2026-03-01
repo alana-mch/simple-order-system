@@ -6,6 +6,8 @@ public class SimpleOrderSystem
   public static final int ADD_ORDER = 2;
   public static final int ADD_PRODUCT = 3;
   public static final int LIST_CUSTOMERS = 4;
+  public static final int ORDER_TOTAL = 5;
+  public static final int DISPLAY_ORDERS_CONTAINING = 6;
   public static final int QUIT = 10;
   private Input in = new Input();
   private ArrayList<Customer> customers;
@@ -38,6 +40,9 @@ public class SimpleOrderSystem
     System.out.println(ADD_ORDER + ". Add Order");
     System.out.println(ADD_PRODUCT + ". Add Product");
     System.out.println(LIST_CUSTOMERS + ". List Customers");
+    System.out.println(ORDER_TOTAL + ". Orders Total");
+    System.out.println(DISPLAY_ORDERS_CONTAINING + ". Display Orders Containing Product");
+
     System.out.println();
     System.out.println(QUIT + ". Quit");
   }
@@ -57,6 +62,12 @@ public class SimpleOrderSystem
          break;
       case LIST_CUSTOMERS:
         listCustomers();
+        break;
+      case ORDER_TOTAL:
+        overallTotal();
+        break;
+      case DISPLAY_ORDERS_CONTAINING:
+        displayOrdersContaining();
         break;
       default:
         System.out.println("Invalid option - try again");
@@ -80,11 +91,13 @@ public class SimpleOrderSystem
     String lastName = in.nextLine();
     System.out.println("Enter address:");
     String address = in.nextLine();
+    System.out.println("Enter postcode:");
+    String postcode = in.nextLine();
     System.out.println("Enter phone number:");
     String phone = in.nextLine();
     System.out.println("Enter email address:");
     String email = in.nextLine();
-    Customer customer = new Customer(firstName,lastName,address,phone,email);
+    Customer customer = new Customer(firstName,lastName,address,postcode,phone,email);
     customers.add(customer);
   }
 
@@ -187,13 +200,27 @@ public class SimpleOrderSystem
     {
       return;
     }
-    System.out.print("Enter product description: ");
-    String description = in.nextLine();
     System.out.print("Enter product price: ");
     int price = in.nextInt();
     in.nextLine();
-    Product product = new Product(code,description,price);
-    products.add(product);
+
+    if (code>20) //book
+    {
+      System.out.print("Enter Title: ");
+      String title= in.nextLine();
+      System.out.print("Enter Author: ");
+      String author= in.nextLine();
+      Product product = new Book(title, author, code,price);
+      products.add(product);
+    }
+    else
+    {
+      System.out.print("Enter Description: ");
+      String description= in.nextLine();
+      Product product = new DogProduct(code,description,price);
+      products.add(product);
+    }
+
   }
 
   private boolean isAvailableProductCode(int code)
@@ -228,9 +255,77 @@ public class SimpleOrderSystem
     }
   }
 
+  public void overallTotal()
+  {
+    int total = 0;
+    for (Customer customer : customers)
+    {
+      total += customer.getTotalForAllOrders();
+    }
+    System.out.println("Total for all orders: " + total);
+  }
+
+  public void displayOrdersContaining()
+  {
+    System.out.println("Enter Product Code");
+    int code = in.nextInt();
+    if (isAvailableProductCode(code))
+    {
+      System.out.println("Invalid Product code");
+    }
+    else
+    {
+      for (Customer customer : customers)
+      {
+        for (Order order : customer.getOrders())
+        {
+          for (LineItem lineItem : order.getLineItems())
+          {
+            if (lineItem.getProduct().getCode() == code)
+            {
+              System.out.println(order + " " + customer.getFirstName() + " " + customer.getLastName());
+            }
+          }
+        }
+      }
+    }
+  }
+
+  public void addExampleData()
+  {
+    Customer customer1 = new Customer("Alana" , "McHugh", "125 Gower Street", "NW12 745", "07522430030", "alanamchugh77@gmail.com");
+    Customer customer2 = new Customer("Jodie" , "Loaf", "32 Marsh Avenue", "BH3 456", "07885630777", "jodieloaf@gmail.com");
+    Order order1 = new Order();
+    Order order2 = new Order();
+    Order order3 = new Order();
+    Product product1 = new DogProduct(10, "Dog Toy", 8);
+    Product product2 = new DogProduct(11, "Dog Treat", 2);
+    Product product3 = new DogProduct(12, "Dog Coat", 15);
+    Product product4 = new DogProduct(13, "Dog Bed", 11);
+    Product product5 = new Book("The Seven Husbands of Evelyn Hugo", "Taylor Jenkins Reid", 25, 10);
+    products.add(product1);
+    products.add(product2);
+    products.add(product3);
+    products.add(product4);
+    products.add(product5);
+
+    order1.add(new LineItem(2, product2 ));
+    order1.add(new LineItem(3, product1 ));
+    order2.add(new LineItem(1, product3 ));
+    order2.add(new LineItem(1, product5 ));
+    order3.add(new LineItem(1, product4 ));
+    customer1.addOrder(order1);
+    customer2.addOrder(order2);
+    customer2.addOrder(order3);
+    customers.add(customer1);
+    customers.add(customer2);
+
+  }
+
   public static void main(String[] args)
   {
     SimpleOrderSystem orderSystem = new SimpleOrderSystem();
+    orderSystem.addExampleData();
     orderSystem.run();
   }
 }
